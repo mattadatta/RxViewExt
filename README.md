@@ -1,9 +1,6 @@
 # RxViewExt
 
-[![CI Status](http://img.shields.io/travis/Matthew Brown/RxViewExt.svg?style=flat)](https://travis-ci.org/Matthew Brown/RxViewExt)
-[![Version](https://img.shields.io/cocoapods/v/RxViewExt.svg?style=flat)](http://cocoapods.org/pods/RxViewExt)
-[![License](https://img.shields.io/cocoapods/l/RxViewExt.svg?style=flat)](http://cocoapods.org/pods/RxViewExt)
-[![Platform](https://img.shields.io/cocoapods/p/RxViewExt.svg?style=flat)](http://cocoapods.org/pods/RxViewExt)
+Reactive! View Utilities! Yeah!
 
 ## Example
 
