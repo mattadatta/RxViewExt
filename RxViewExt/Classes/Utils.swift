@@ -124,9 +124,18 @@ extension Result: ResultConvertible {
     }
 }
 
-extension ObservableType {
+public extension ObservableType {
 
     public func resulting() -> Observable<Result<E>> {
+        return self
+            .map({ .element($0) })
+            .catchError({ .just(.error($0)) })
+    }
+}
+
+public extension PrimitiveSequence {
+
+    public func resulting() -> PrimitiveSequence<TraitType, Result<ElementType>> {
         return self
             .map({ .element($0) })
             .catchError({ .just(.error($0)) })
@@ -182,5 +191,54 @@ public extension ObservableType {
                 disposable.setDisposable(Disposables.create())
             }
         }, iterDisposable)
+    }
+
+    func bind <O: ObservableType> (into observable: O) -> Disposable where O.E: Optionable, O.E.WrappedType: ObserverType, O.E.WrappedType.E == E {
+        let source = self
+        let iterDisposable = SerialDisposable()
+        return Disposables.create(observable.subscribe { event in
+            let disposable = SingleAssignmentDisposable()
+            iterDisposable.disposable = disposable
+            switch event {
+            case .next(let observer):
+                if let observer = observer.asOptional() {
+                    disposable.setDisposable(source.bind(to: observer))
+                } else {
+                    disposable.setDisposable(Disposables.create())
+                }
+            default:
+                disposable.setDisposable(Disposables.create())
+            }
+        }, iterDisposable)
+    }
+
+    func bind <O: ObservableType> (into observable: O) -> Disposable where O.E == Variable<E>? {
+        let source = self
+        let iterDisposable = SerialDisposable()
+        return Disposables.create(observable.subscribe { event in
+            let disposable = SingleAssignmentDisposable()
+            iterDisposable.disposable = disposable
+            switch event {
+            case .next(let variable):
+                if let variable = variable {
+                    disposable.setDisposable(source.bind(to: variable))
+                } else {
+                    disposable.setDisposable(Disposables.create())
+                }
+            default:
+                disposable.setDisposable(Disposables.create())
+            }
+        }, iterDisposable)
+    }
+}
+
+public extension Optionable {
+
+    func asOptional() -> WrappedType? {
+        if self.isEmpty() {
+            return nil
+        } else {
+            return self.unwrap()
+        }
     }
 }

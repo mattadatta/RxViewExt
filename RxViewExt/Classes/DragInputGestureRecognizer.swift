@@ -18,6 +18,16 @@ public struct DragAction {
         case changed
         case ended
         case cancelled
+
+        public var isStopEvent: Bool {
+            switch self {
+            case .ended: fallthrough
+            case .cancelled:
+                return true
+            default:
+                return false
+            }
+        }
     }
 
     public struct Info {
