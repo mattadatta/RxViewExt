@@ -141,6 +141,20 @@ public extension Reactive where Base: UIView {
             initialSpringVelocity: 0,
             animations: animations)
     }
+
+    public static func animateHalt(
+        withDuration duration: TimeInterval?,
+        delay: TimeInterval = 0,
+        animations: @escaping () -> Void)
+        -> Single<Bool>
+    {
+        return self.animate(
+            withDuration: duration,
+            delay: delay,
+            usingSpringWithDamping: 1,
+            initialSpringVelocity: 0,
+            animations: animations)
+    }
 }
 
 public extension Reactive where Base: UIView {

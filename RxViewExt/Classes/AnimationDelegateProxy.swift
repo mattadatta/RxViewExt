@@ -18,8 +18,8 @@ public final class AnimationDelegateProxy: DelegateProxy, DelegateProxyType, CAA
     }
 
     public static func currentDelegateFor(_ object: AnyObject) -> AnyObject? {
-        let controller = object as! UIImagePickerController
-        return controller.delegate
+        let animation = object as! CAAnimation
+        return animation.delegate
     }
 
     public static func setCurrentDelegate(_ delegate: AnyObject?, toObject object: AnyObject) {
@@ -65,7 +65,6 @@ public final class AnimationDelegateProxy: DelegateProxy, DelegateProxyType, CAA
 
     public func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
         self._event.onNext(.didStop(flag))
-        self._event.onCompleted()
         self.forwardToDelegate?.animationDidStop?(anim, finished: flag)
     }
 }

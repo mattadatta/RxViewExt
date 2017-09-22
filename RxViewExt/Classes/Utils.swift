@@ -56,6 +56,13 @@ public extension ObservableType {
     }
 }
 
+public extension PrimitiveSequence {
+
+    public func delayOnMain(by interval: RxTimeInterval) -> PrimitiveSequence<Trait, Element> {
+        return self.delay(interval, scheduler: ConcurrentMainScheduler.instance)
+    }
+}
+
 public extension ObservableType {
 
     public func prevAndNext() -> Observable<(E?, E)> {
