@@ -71,8 +71,8 @@ public final class TouchGestureRecognizer: UIGestureRecognizer, UIGestureRecogni
 
     private var nop: NopTarget!
 
-    fileprivate var _touchState = Variable<TouchState>(.enabled)
-    fileprivate var _touchEvent = Variable<TouchEvent>([])
+    fileprivate var _touchState = BehaviorRelay<TouchState>(value: .enabled)
+    fileprivate var _touchEvent = BehaviorRelay<TouchEvent>(value: [])
 
     public let touchStates: Observable<TouchState>
     public let touchEvents: Observable<TouchEvent>
@@ -113,8 +113,8 @@ public final class TouchGestureRecognizer: UIGestureRecognizer, UIGestureRecogni
         self.isTouchInside = true
         self.isTracking = true
         let touchEvent: TouchEvent = touches.count > 1 ? [.down, .downRepeat] : .down
-        self._touchEvent.value = touchEvent
-        self._touchState.value.insert(.highlighted)
+        self._touchEvent.accept(touchEvent)
+        self._touchState.accept(self._touchState.value.union(.highlighted))
     }
 
     override public func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent) {
@@ -133,12 +133,12 @@ public final class TouchGestureRecognizer: UIGestureRecognizer, UIGestureRecogni
             return touchEvent
         }()
 
-        self._touchEvent.value = touchEvent
+        self._touchEvent.accept(touchEvent)
 
         if self.isTouchInside {
-            self._touchState.value.insert(.highlighted)
+            self._touchState.accept(self._touchState.value.union(.highlighted))
         } else {
-            self._touchState.value.remove(.highlighted)
+            self._touchState.accept(self._touchState.value.subtracting(.highlighted))
         }
     }
 
@@ -152,8 +152,8 @@ public final class TouchGestureRecognizer: UIGestureRecognizer, UIGestureRecogni
         self.isTracking = false
         self.isTouchInside = false
 
-        self._touchEvent.value = touchEvent
-        self._touchState.value.remove(.highlighted)
+        self._touchEvent.accept(touchEvent)
+        self._touchState.accept(self._touchState.value.subtracting(.highlighted))
     }
 
     override public func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent) {
@@ -165,8 +165,8 @@ public final class TouchGestureRecognizer: UIGestureRecognizer, UIGestureRecogni
         let touchEvent: TouchEvent = .cancel
         self.isTracking = false
         self.isTouchInside = false
-        self._touchEvent.value = touchEvent
-        self._touchState.value.remove(.highlighted)
+        self._touchEvent.accept(touchEvent)
+        self._touchState.accept(self._touchState.value.subtracting(.highlighted))
     }
 }
 
@@ -192,7 +192,6 @@ public extension Reactive where Base: UIView {
 
     public var touchEvent: TouchEvent {
         get { return self.touchGestureRecognizer?._touchEvent.value ?? .none }
-        set { self.touchGestureRecognizer?._touchEvent.value = newValue }
     }
 
     public func state() -> Observable<TouchState> {
@@ -208,6 +207,5 @@ public extension Reactive where Base: UIView {
 
     public var touchState: TouchState {
         get { return self.touchGestureRecognizer?._touchState.value ?? .none }
-        set { self.touchGestureRecognizer?._touchState.value = newValue }
     }
 }
