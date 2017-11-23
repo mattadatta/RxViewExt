@@ -159,8 +159,8 @@ public extension Reactive where Base: UIView {
 
 public extension Reactive where Base: UIView {
 
-    public var transform: UIBindingObserver<Base, CGAffineTransform> {
-        return UIBindingObserver(UIElement: self.base) { view, transform in
+    public var transform: Binder<CGAffineTransform> {
+        return Binder(self.base) { view, transform in
             view.transform = transform
         }
     }

@@ -57,8 +57,8 @@ public extension Reactive where Base: UIView {
 
 public extension Reactive where Base: CALayer {
 
-    public var cornerRadius: UIBindingObserver<Base, CGFloat> {
-        return UIBindingObserver(UIElement: self.base) { layer, cornerRadius in
+    public var cornerRadius: Binder<CGFloat> {
+        return Binder(self.base) { layer, cornerRadius in
             layer.cornerRadius = cornerRadius
         }
     }
@@ -109,14 +109,14 @@ public extension Reactive where Base: CALayer {
 
 public extension Reactive where Base: CAShapeLayer {
 
-    public var path: UIBindingObserver<Base, CGPath?> {
-        return UIBindingObserver(UIElement: self.base) { layer, path in
+    public var path: Binder<CGPath?> {
+        return Binder(self.base) { layer, path in
             layer.path = path
         }
     }
 
-    public var lineWidth: UIBindingObserver<Base, CGFloat> {
-        return UIBindingObserver(UIElement: self.base) { layer, lineWidth in
+    public var lineWidth: Binder<CGFloat> {
+        return Binder(self.base) { layer, lineWidth in
             layer.lineWidth = lineWidth
         }
     }

@@ -8,16 +8,10 @@ import RxSwift
 import RxCocoa
 import RxSwiftExt
 
-public extension SharedSequenceConvertibleType where SharingStrategy == DriverSharingStrategy, E: Optionable {
+public extension SharedSequenceConvertibleType {
 
-    public func unwrap() -> Driver<E.WrappedType> {
-        return self
-            .filter { value in
-                return !value.isEmpty()
-            }
-            .map { value -> E.WrappedType in
-                return value.unwrap()
-        }
+    public func unwrap<T>() -> SharedSequence<SharingStrategy, T> where E == Optional<T> {
+        return self.filter({ $0 != nil }).map({ $0! })
     }
 }
 
@@ -28,17 +22,10 @@ public extension ObservableType {
     }
 }
 
-public extension PrimitiveSequence {
-
-    public func optionally() -> PrimitiveSequence<Trait, Element?> {
-        return self.map({ $0 })
-    }
-}
-
 public extension ObservableType {
 
     public func ping() -> Observable<Void> {
-        return self.mapTo(())
+        return self.map(to: ())
     }
 }
 
@@ -140,7 +127,7 @@ public extension ObservableType {
     }
 }
 
-public extension PrimitiveSequence {
+public extension PrimitiveSequenceType where Self.TraitType == RxSwift.SingleTrait {
 
     public func resulting() -> PrimitiveSequence<TraitType, Result<ElementType>> {
         return self
@@ -200,7 +187,7 @@ public extension ObservableType {
         }, iterDisposable)
     }
 
-    func bind <O: ObservableType> (into observable: O) -> Disposable where O.E: Optionable, O.E.WrappedType: ObserverType, O.E.WrappedType.E == E {
+    func bind <O: ObservableType, T> (into observable: O) -> Disposable where O.E == Optional<T>, T: ObserverType, T.E == E {
         let source = self
         let iterDisposable = SerialDisposable()
         return Disposables.create(observable.subscribe { event in
@@ -208,7 +195,7 @@ public extension ObservableType {
             iterDisposable.disposable = disposable
             switch event {
             case .next(let observer):
-                if let observer = observer.asOptional() {
+                if let observer = observer {
                     disposable.setDisposable(source.bind(to: observer))
                 } else {
                     disposable.setDisposable(Disposables.create())
@@ -236,16 +223,5 @@ public extension ObservableType {
                 disposable.setDisposable(Disposables.create())
             }
         }, iterDisposable)
-    }
-}
-
-public extension Optionable {
-
-    func asOptional() -> WrappedType? {
-        if self.isEmpty() {
-            return nil
-        } else {
-            return self.unwrap()
-        }
     }
 }

@@ -9,7 +9,7 @@ import RxSwift
 import RxCocoa
 import RxSwiftExt
 
-public final class AnimationDelegateProxy: DelegateProxy, DelegateProxyType, CAAnimationDelegate {
+public final class AnimationDelegateProxy: DelegateProxy<CAAnimation, CAAnimationDelegate>, DelegateProxyType, CAAnimationDelegate {
 
     public enum Event {
 
@@ -17,18 +17,24 @@ public final class AnimationDelegateProxy: DelegateProxy, DelegateProxyType, CAA
         case didStop(Bool)
     }
 
-    public static func currentDelegateFor(_ object: AnyObject) -> AnyObject? {
-        let animation = object as! CAAnimation
-        return animation.delegate
+    public static func registerKnownImplementations() {
+        self.register(make: { AnimationDelegateProxy(parentObject: $0) })
     }
 
-    public static func setCurrentDelegate(_ delegate: AnyObject?, toObject object: AnyObject) {
-        let animation = object as! CAAnimation
-        animation.delegate = delegate as? CAAnimationDelegate
+    public static func currentDelegate(for object: CAAnimation) -> CAAnimationDelegate? {
+        return object.delegate
+    }
+
+    public static func setCurrentDelegate(_ delegate: CAAnimationDelegate?, to object: CAAnimation) {
+        object.delegate = delegate
     }
 
     private var forwardToDelegate: CAAnimationDelegate? {
-        return self.forwardToDelegate() as? CAAnimationDelegate
+        return self.forwardToDelegate()
+    }
+
+    public init(parentObject: ParentObject) {
+        super.init(parentObject: parentObject, delegateProxy: AnimationDelegateProxy.self)
     }
 
     private let _event = ReplaySubject<Event>.createUnbounded()
@@ -72,7 +78,7 @@ public final class AnimationDelegateProxy: DelegateProxy, DelegateProxyType, CAA
 public extension Reactive where Base: CAAnimation {
 
     public var delegate: AnimationDelegateProxy {
-        return AnimationDelegateProxy.proxyForObject(self.base)
+        return AnimationDelegateProxy.proxy(for: self.base)
     }
 
     public func setDelegate(_ delegate: CAAnimationDelegate) -> Disposable {
