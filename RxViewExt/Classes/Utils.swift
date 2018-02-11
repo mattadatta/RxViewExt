@@ -29,6 +29,13 @@ public extension PrimitiveSequenceType where TraitType == SingleTrait {
     }
 }
 
+extension ObservableType {
+
+    func map<T>(to: T) -> Observable<T> {
+        return self.map({ _ in to })
+    }
+}
+
 public extension ObservableType {
 
     public func ping() -> Observable<Void> {
