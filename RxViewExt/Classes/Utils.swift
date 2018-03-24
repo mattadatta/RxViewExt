@@ -186,15 +186,15 @@ public extension ObservableType {
         }, iterDisposable)
     }
 
-    func bind <O: ObservableType> (into observable: O) -> Disposable where O.E == Variable<E> {
+    func bind <O: ObservableType> (into observable: O) -> Disposable where O.E == BehaviorRelay<E> {
         let source = self
         let iterDisposable = SerialDisposable()
         return Disposables.create(observable.subscribe { event in
             let disposable = SingleAssignmentDisposable()
             iterDisposable.disposable = disposable
             switch event {
-            case .next(let variable):
-                disposable.setDisposable(source.bind(to: variable))
+            case .next(let relay):
+                disposable.setDisposable(source.bind(to: relay))
             default:
                 disposable.setDisposable(Disposables.create())
             }
@@ -220,16 +220,16 @@ public extension ObservableType {
         }, iterDisposable)
     }
 
-    func bind <O: ObservableType> (into observable: O) -> Disposable where O.E == Variable<E>? {
+    func bind <O: ObservableType> (into observable: O) -> Disposable where O.E == BehaviorRelay<E>? {
         let source = self
         let iterDisposable = SerialDisposable()
         return Disposables.create(observable.subscribe { event in
             let disposable = SingleAssignmentDisposable()
             iterDisposable.disposable = disposable
             switch event {
-            case .next(let variable):
-                if let variable = variable {
-                    disposable.setDisposable(source.bind(to: variable))
+            case .next(let relay):
+                if let relay = relay {
+                    disposable.setDisposable(source.bind(to: relay))
                 } else {
                     disposable.setDisposable(Disposables.create())
                 }
